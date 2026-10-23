@@ -1,0 +1,12 @@
+const prices={tashkent:{name:"Old Tashkent Walk",price:35},samarkand:{name:"Registan & Gur-e-Amir",price:120},khiva:{name:"Khiva Itchan Kala",price:210}};
+const form=document.querySelector("#booking-form");
+if(form){
+ const name=document.querySelector("#customer-name"),email=document.querySelector("#customer-email"),tour=document.querySelector("#tour"),travellers=document.querySelector("#travellers"),date=document.querySelector("#date"),output=document.querySelector("#price-output"),note=document.querySelector("#discount-note"),message=document.querySelector("#form-message");
+ const selected=new URLSearchParams(location.search).get("tour");if(selected&&prices[selected])tour.value=selected;
+ function total(){let n=Math.max(1,Math.min(12,parseInt(travellers.value)||1)),p=prices[tour.value].price,s=n*p,d=n>=5?s*.1:0;return{n,p,s,d,t:s-d};}
+ function update(){let r=total();output.textContent=`Total: ${r.n} × ${r.p} USD = ${r.t} USD${r.d?` (10% discount: −${r.d} USD)`:""}`;note.textContent=r.n>=5?"10% group discount applied.":"Groups of 5 or more get 10% off.";}
+ tour.addEventListener("change",update);travellers.addEventListener("input",update);update();
+ form.addEventListener("submit",e=>{e.preventDefault();message.className="form-message";message.textContent="";[name,email,travellers,date].forEach(x=>x.classList.remove("invalid"));document.querySelector("#name-error").textContent="";document.querySelector("#email-error").textContent="";
+ let valid=true;if(!name.value.trim()){name.classList.add("invalid");document.querySelector("#name-error").textContent="Please enter your name.";valid=false;}if(!email.value.trim()||!email.value.includes("@")){email.classList.add("invalid");document.querySelector("#email-error").textContent="Please enter an email address containing @.";valid=false;}if(+travellers.value<1||+travellers.value>12||!Number.isInteger(+travellers.value)){travellers.classList.add("invalid");valid=false;}if(!date.value){date.classList.add("invalid");valid=false;}
+ if(!valid){message.classList.add("error");message.textContent="Please fix the highlighted fields and try again.";return;}let r=total();message.classList.add("success");message.textContent=`Thank you, ${name.value.trim()}! Your ${prices[tour.value].name} request has been checked. Estimated total: ${r.t} USD. This demo does not send or store bookings.`;});
+}
